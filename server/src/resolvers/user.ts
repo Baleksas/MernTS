@@ -1,18 +1,17 @@
-// import { User } from "src/entities/User";
-import { User } from "../entities/User";
-
-import { MyContext } from "src/types";
 import {
   Resolver,
-  Query,
+  Mutation,
+  Arg,
   InputType,
   Field,
   Ctx,
-  Arg,
-  Mutation,
   ObjectType,
+  Query,
 } from "type-graphql";
+import { MyContext } from "../types";
+import { User } from "../entities/User";
 import argon2 from "argon2";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 @InputType()
 class UsernamePasswordInput {
@@ -47,9 +46,11 @@ export class UserResolver {
     if (!req.session.userId) {
       return null;
     }
+
     const user = await em.findOne(User, { id: req.session.userId });
     return user;
   }
+
   @Mutation(() => UserResponse)
   async register(
     @Arg("options") options: UsernamePasswordInput,
@@ -60,44 +61,55 @@ export class UserResolver {
         errors: [
           {
             field: "username",
-            message: `lengh must be greater than 2`,
+            message: "length must be greater than 2",
           },
         ],
       };
     }
-    if (options.password.length <= 6) {
+
+    if (options.password.length <= 2) {
       return {
         errors: [
           {
             field: "password",
-            message: `lengh must be greater than 6`,
+            message: "length must be greater than 2",
           },
         ],
       };
     }
+
     const hashedPassword = await argon2.hash(options.password);
-    const user = em.create(User, {
-      username: options.username,
-      password: hashedPassword,
-    });
+    let user;
     try {
-      await em.persistAndFlush(user);
-    } catch (error) {
-      console.log("message: ", error.message);
-      if (error.code === "23505" || error.detail.includes("already exists")) {
+      const result = await (em as EntityManager)
+        .createQueryBuilder(User)
+        .getKnexQuery()
+        .insert({
+          username: options.username,
+          password: hashedPassword,
+          created_at: new Date(),
+          updated_at: new Date(),
+        })
+        .returning("*");
+      user = result[0];
+    } catch (err) {
+      //|| err.detail.includes("already exists")) {
+      // duplicate username error
+      if (err.code === "23505") {
         return {
           errors: [
             {
               field: "username",
-              message: "this username already exists",
+              message: "username already taken",
             },
           ],
         };
       }
     }
-    await em.persistAndFlush(user);
+
     // store user id session
-    // this will set a cookie and keep user logged in
+    // this will set a cookie on the user
+    // keep them logged in
     req.session.userId = user.id;
 
     return { user };
@@ -130,6 +142,7 @@ export class UserResolver {
         ],
       };
     }
+
     req.session.userId = user.id;
 
     return {
