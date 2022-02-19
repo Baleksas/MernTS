@@ -3,6 +3,7 @@ import {
   Ctx,
   Field,
   InputType,
+  Int,
   Mutation,
   ObjectType,
   Resolver,
@@ -12,23 +13,7 @@ import { Post } from "../entities/Post";
 import { Query } from "type-graphql";
 import { MyContext } from "src/types";
 import { isAuth } from "../middleware/isAuth";
-// import { isAuth } from "src/middleware/isAuth";
-
-// @ObjectType()
-// class FieldError {
-//   @Field()
-//   field: string;
-//   @Field()
-//   message: string;
-// }
-// @ObjectType()
-// class PostResponse {
-//   @Field(() => [FieldError], { nullable: true })
-//   errors?: FieldError[];
-
-//   @Field(() => Post, { nullable: true })
-//   post?: Post;
-// }
+import { getConnection } from "typeorm";
 
 @InputType()
 class PostInput {
@@ -39,8 +24,21 @@ class PostInput {
 }
 export class PostResolver {
   @Query(() => [Post])
-  async posts(): Promise<Post[]> {
-    return Post.find();
+  async posts(
+    @Arg("limit", () => Int) limit: number,
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+  ): Promise<Post[]> {
+    const realLimit = Math.min(50, limit);
+    const qb = getConnection()
+      .getRepository(Post)
+      .createQueryBuilder("p")
+      .orderBy('"createdAt"', "DESC")
+      // * take better than limit in paginations
+      .take(realLimit);
+    if (cursor) {
+      qb.where(`"createdAt" < :cursor`, { cursor: new Date(parseInt(cursor)) });
+    }
+    return qb.getMany();
   }
 
   @Query(() => Post, { nullable: true })
