@@ -1,4 +1,4 @@
-import { ObjectType, Field } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   Column,
@@ -33,7 +33,7 @@ export class Post extends BaseEntity {
   @Column()
   creatorId: number;
 
-  @ManyToOne((type) => User, (user) => user.posts)
+  @ManyToOne(() => User, (user) => user.posts)
   creator: User;
 
   @Field(() => String)

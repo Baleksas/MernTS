@@ -1,19 +1,20 @@
+import { MyContext } from "src/types";
 import {
   Arg,
   Ctx,
   Field,
+  FieldResolver,
   InputType,
   Int,
   Mutation,
-  ObjectType,
+  Query,
   Resolver,
+  Root,
   UseMiddleware,
 } from "type-graphql";
-import { Post } from "../entities/Post";
-import { Query } from "type-graphql";
-import { MyContext } from "src/types";
-import { isAuth } from "../middleware/isAuth";
 import { getConnection } from "typeorm";
+import { Post } from "../entities/Post";
+import { isAuth } from "../middleware/isAuth";
 
 @InputType()
 class PostInput {
@@ -22,7 +23,12 @@ class PostInput {
   @Field()
   text: string;
 }
+@Resolver(Post)
 export class PostResolver {
+  @FieldResolver(() => String)
+  textSnippet(@Root() root: Post) {
+    return root.text.slice(0, 50);
+  }
   @Query(() => [Post])
   async posts(
     @Arg("limit", () => Int) limit: number,
@@ -52,16 +58,6 @@ export class PostResolver {
     @Arg("input") input: PostInput,
     @Ctx() { req }: MyContext
   ): Promise<Post> {
-    // if (!isAuth) {
-    //   return {
-    //     errors: [
-    //       {
-    //         field: "usernameOrEmail",
-    //         message: "that username doesn't exist",
-    //       },
-    //     ],
-    //   };
-    // }
     return Post.create({ ...input, creatorId: req.session.userId }).save();
   }
 
