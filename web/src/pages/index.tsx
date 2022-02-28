@@ -19,6 +19,7 @@ import {
   AlertTitle,
   AlertDescription,
 } from "@chakra-ui/react";
+import { useState } from "react";
 
 function PostBox({ title, desc = "N/A", ...rest }) {
   return (
@@ -29,10 +30,12 @@ function PostBox({ title, desc = "N/A", ...rest }) {
   );
 }
 const Index = () => {
+  const [variables, setVariables] = useState({
+    limit: 10,
+    cursor: null as null | string,
+  });
   let [{ data, fetching }] = usePostsQuery({
-    variables: {
-      limit: 10,
-    },
+    variables,
   });
   if (!data && !fetching) {
     return (
@@ -58,14 +61,24 @@ const Index = () => {
         <div>Loading...</div>
       ) : (
         <Stack spacing={8}>
-          {data.posts.map((p) => (
+          {data.posts.posts.map((p) => (
             <PostBox title={p.title} desc={p.textSnippet} key={p.id} />
           ))}
         </Stack>
       )}
-      {data && (
+      {data && data.posts.hasMore && (
         <Flex>
-          <Button isLoading={fetching} m="auto" my={8}>
+          <Button
+            onClick={() =>
+              setVariables({
+                limit: variables.limit,
+                cursor: data.posts.posts[data.posts.posts.length - 1].createdAt,
+              })
+            }
+            isLoading={fetching}
+            m="auto"
+            my={8}
+          >
             Load more
           </Button>
         </Flex>
