@@ -21,17 +21,19 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 
-function PostBox({ title, desc = "N/A", ...rest }) {
+function PostBox({ p, ...rest }) {
+  console.log(p);
   return (
     <Box p={5} shadow="md" borderWidth="1px" {...rest}>
-      <Heading fontSize="xl">{title}</Heading>
-      <Text mt={4}>{desc}</Text>
+      <Heading fontSize="xl">{p.title}</Heading>
+      <Text>posted by {p.creator.username}</Text>
+      <Text mt={4}>{p.textSnippet}</Text>
     </Box>
   );
 }
 const Index = () => {
   const [variables, setVariables] = useState({
-    limit: 10,
+    limit: 15,
     cursor: null as null | string,
   });
   let [{ data, fetching }] = usePostsQuery({
@@ -62,7 +64,7 @@ const Index = () => {
       ) : (
         <Stack spacing={8}>
           {data.posts.posts.map((p) => (
-            <PostBox title={p.title} desc={p.textSnippet} key={p.id} />
+            <PostBox p={p} key={p.id} />
           ))}
         </Stack>
       )}
