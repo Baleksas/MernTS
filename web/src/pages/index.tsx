@@ -3,6 +3,8 @@ import {
   Button,
   Flex,
   Heading,
+  Icon,
+  IconButton,
   Link,
   Stack,
   Text,
@@ -14,21 +16,32 @@ import { useCreatePostMutation, usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import NextLink from "next/link";
 import {
+  PhoneIcon,
+  AddIcon,
+  WarningIcon,
+  TriangleDownIcon,
+  TriangleUpIcon,
+} from "@chakra-ui/icons";
+import {
   Alert,
   AlertIcon,
   AlertTitle,
   AlertDescription,
 } from "@chakra-ui/react";
 import { useState } from "react";
+import UpdootSection from "../components/UpdootSection";
 
 function PostBox({ p, ...rest }) {
   console.log(p);
   return (
-    <Box p={5} shadow="md" borderWidth="1px" {...rest}>
-      <Heading fontSize="xl">{p.title}</Heading>
-      <Text>posted by {p.creator.username}</Text>
-      <Text mt={4}>{p.textSnippet}</Text>
-    </Box>
+    <Flex p={5} shadow="md" borderWidth="1px" {...rest}>
+      <UpdootSection post={p} />
+      <Box>
+        <Heading fontSize="xl">{p.title}</Heading>
+        <Text>posted by {p.creator.username}</Text>
+        <Text mt={4}>{p.textSnippet}</Text>
+      </Box>
+    </Flex>
   );
 }
 const Index = () => {
