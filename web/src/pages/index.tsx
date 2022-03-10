@@ -95,9 +95,9 @@ const Index = () => {
         <div>Loading...</div>
       ) : (
         <Stack spacing={8}>
-          {data.posts.posts.map((p) => (
-            <PostBox p={p} key={p.id} />
-          ))}
+          {data.posts.posts.map((p) =>
+            !p ? null : <PostBox p={p} key={p.id} />
+          )}
         </Stack>
       )}
       {data && data.posts.hasMore && (
