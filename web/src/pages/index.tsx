@@ -12,7 +12,11 @@ import {
 import { withUrqlClient } from "next-urql";
 import Layout from "../components/Layout";
 import { NavBar } from "../components/NavBar";
-import { useCreatePostMutation, usePostsQuery } from "../generated/graphql";
+import {
+  useCreatePostMutation,
+  useDeletePostMutation,
+  usePostsQuery,
+} from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import NextLink from "next/link";
 import {
@@ -21,6 +25,7 @@ import {
   WarningIcon,
   TriangleDownIcon,
   TriangleUpIcon,
+  DeleteIcon,
 } from "@chakra-ui/icons";
 import {
   Alert,
@@ -32,14 +37,33 @@ import { useState } from "react";
 import UpdootSection from "../components/UpdootSection";
 
 function PostBox({ p, ...rest }) {
-  console.log(p);
+  const [, deletePost] = useDeletePostMutation();
   return (
     <Flex p={5} shadow="md" borderWidth="1px" {...rest}>
       <UpdootSection post={p} />
-      <Box>
-        <Heading fontSize="xl">{p.title}</Heading>
+      <Box flex={1}>
+        <NextLink href="/post/[id]" as={`/post/${p.id}`}>
+          <Link>
+            <Heading fontSize="xl">{p.title}</Heading>
+          </Link>
+        </NextLink>
         <Text>posted by {p.creator.username}</Text>
-        <Text mt={4}>{p.textSnippet}</Text>
+        <Flex align={"center"}>
+          <Text flex={1} mt={4}>
+            {p.textSnippet}
+          </Text>
+          <IconButton
+            ml={"auto"}
+            onClick={() => {
+              deletePost({ id: p.id });
+            }}
+            aria-label="Delete post"
+            size="24px"
+            p={2}
+            colorScheme={"red"}
+            icon={<DeleteIcon />}
+          />
+        </Flex>
       </Box>
     </Flex>
   );
@@ -52,6 +76,7 @@ const Index = () => {
   let [{ data, fetching }] = usePostsQuery({
     variables,
   });
+
   if (!data && !fetching) {
     return (
       <Layout>
@@ -65,12 +90,6 @@ const Index = () => {
   }
   return (
     <Layout>
-      <Flex align="center">
-        <Heading>QuickPost</Heading>
-        <NextLink href="/create-post">
-          <Link ml="auto">Create post</Link>
-        </NextLink>
-      </Flex>
       <br />
       {!data && fetching ? (
         <div>Loading...</div>
