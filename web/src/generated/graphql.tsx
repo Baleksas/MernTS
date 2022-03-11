@@ -264,7 +264,7 @@ export type UpdatePostMutation = (
   { __typename?: 'Mutation' }
   & { updatePost?: Maybe<(
     { __typename?: 'Post' }
-    & Pick<Post, 'title' | 'id' | 'creatorId' | 'text' | 'points'>
+    & Pick<Post, 'id' | 'title' | 'text' | 'textSnippet'>
   )> }
 );
 
@@ -440,12 +440,11 @@ export function useRegisterMutation() {
 };
 export const UpdatePostDocument = gql`
     mutation UpdatePost($id: Int!, $text: String!, $title: String!) {
-  updatePost(id: $id, text: $text, title: $title) {
-    title
+  updatePost(id: $id, title: $title, text: $text) {
     id
-    creatorId
+    title
     text
-    points
+    textSnippet
   }
 }
     `;

@@ -4,32 +4,28 @@ import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
 import { InputField } from "../../../components/InputField";
-import Layout from "../../../components/Layout";
+import { Layout } from "../../../components/Layout";
 import {
   usePostQuery,
   useUpdatePostMutation,
 } from "../../../generated/graphql";
 import { createUrqlClient } from "../../../utils/createUrqlClient";
 import { useGetIntId } from "../../../utils/useGetIntId";
-import { useGetPostFormUrl } from "../../../utils/useGetPostFromUrl";
-import { useIsAuth } from "../../../utils/useIsAuth";
 
 const EditPost = ({}) => {
-  const intId = useGetIntId();
   const router = useRouter();
-  const [{ data, error, fetching }] = usePostQuery({
+  const intId = useGetIntId();
+  const [{ data, fetching }] = usePostQuery({
     pause: intId === -1,
     variables: {
       id: intId,
     },
   });
-
   const [, updatePost] = useUpdatePostMutation();
-
   if (fetching) {
     return (
       <Layout>
-        <div>Loading...</div>
+        <div>loading...</div>
       </Layout>
     );
   }
@@ -47,13 +43,8 @@ const EditPost = ({}) => {
       <Formik
         initialValues={{ title: data.post.title, text: data.post.text }}
         onSubmit={async (values) => {
-          const { error } = await updatePost({
-            id: intId,
-            ...values,
-          });
-          if (!error) {
-            router.push("/");
-          }
+          await updatePost({ id: intId, ...values });
+          router.back();
         }}
       >
         {({ isSubmitting }) => (
@@ -61,19 +52,17 @@ const EditPost = ({}) => {
             <InputField name="title" placeholder="title" label="Title" />
             <Box mt={4}>
               <InputField
+                textarea
                 name="text"
                 placeholder="text..."
-                // value={}
                 label="Body"
-                type="text"
-                textarea
               />
             </Box>
             <Button
               mt={4}
               type="submit"
               isLoading={isSubmitting}
-              colorScheme="teal"
+              variantColor="teal"
             >
               Update post
             </Button>
