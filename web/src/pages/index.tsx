@@ -16,6 +16,7 @@ import {
   useCreatePostMutation,
   useDeletePostMutation,
   usePostsQuery,
+  useUpdatePostMutation,
 } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import NextLink from "next/link";
@@ -26,6 +27,7 @@ import {
   TriangleDownIcon,
   TriangleUpIcon,
   DeleteIcon,
+  EditIcon,
 } from "@chakra-ui/icons";
 import {
   Alert,
@@ -38,6 +40,8 @@ import UpdootSection from "../components/UpdootSection";
 
 function PostBox({ p, ...rest }) {
   const [, deletePost] = useDeletePostMutation();
+  const [, updatePost] = useUpdatePostMutation();
+
   return (
     <Flex p={5} shadow="md" borderWidth="1px" {...rest}>
       <UpdootSection post={p} />
@@ -52,17 +56,33 @@ function PostBox({ p, ...rest }) {
           <Text flex={1} mt={4}>
             {p.textSnippet}
           </Text>
-          <IconButton
-            ml={"auto"}
-            onClick={() => {
-              deletePost({ id: p.id });
-            }}
-            aria-label="Delete post"
-            size="24px"
-            p={2}
-            colorScheme={"red"}
-            icon={<DeleteIcon />}
-          />
+          <Box ml={"auto"}>
+            <NextLink href="/post/edit/[id]" as={`/post/edit${p.id}`}>
+              <IconButton
+                ml={"auto"}
+                mr={4}
+                aria-label="Edit post"
+                size="24px"
+                p={2}
+                onClick={() => {}}
+                // colorScheme={"green"}
+                icon={<EditIcon />}
+                as={Link}
+              />
+            </NextLink>
+
+            <IconButton
+              ml={"auto"}
+              onClick={() => {
+                deletePost({ id: p.id });
+              }}
+              aria-label="Delete post"
+              size="24px"
+              p={2}
+              // colorScheme={"red"}
+              icon={<DeleteIcon />}
+            />
+          </Box>
         </Flex>
       </Box>
     </Flex>
