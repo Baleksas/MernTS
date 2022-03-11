@@ -23,6 +23,7 @@ const CreatePost: React.FC<{}> = () => {
           }
         }}
       >
+        {/* 10 52 */}
         {({ isSubmitting }) => (
           <Form>
             <InputField name="title" placeholder="title" label="Title" />
