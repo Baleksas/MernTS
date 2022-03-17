@@ -1,4 +1,4 @@
-import { Box, Button, Heading, Link } from "@chakra-ui/react";
+import { Alert, AlertIcon, Box, Button, Heading, Link } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
@@ -6,6 +6,7 @@ import NextLink from "next/link";
 import Layout from "../../components/Layout";
 import { usePostQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
+import { AlertMessage } from "../../components/AlertMessage";
 
 const Post = () => {
   const router = useRouter();

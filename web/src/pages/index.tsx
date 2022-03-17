@@ -4,12 +4,15 @@ import {
   Flex,
   Heading,
   Link,
+  Select,
   Stack,
   Text,
 } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import NextLink from "next/link";
 import { useState } from "react";
+import { AlertMessage } from "../components/AlertMessage";
+import RefactoredDate from "../components/RefactoredDate";
 import { EditDeletePostButtons } from "../components/EditDeletePostButtons";
 import { Layout } from "../components/Layout";
 import UpdootSection from "../components/UpdootSection";
@@ -35,34 +38,54 @@ const Index = () => {
       {!data && fetching ? (
         <div>loading...</div>
       ) : (
-        <Stack spacing={8}>
-          {data!.posts.posts.map((p) =>
-            !p ? null : (
-              <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
-                <UpdootSection post={p} />
-                <Box flex={1}>
-                  <NextLink href="/post/[id]" as={`/post/${p.id}`}>
-                    <Link>
-                      <Heading fontSize="xl">{p.title}</Heading>
-                    </Link>
-                  </NextLink>
-                  <Text>posted by {p.creator.username}</Text>
-                  <Flex align="center">
-                    <Text flex={1} mt={4}>
-                      {p.textSnippet}
+        <Flex flexDirection={"column"}>
+          <Box mb={5} display={"flow"} float={"left"}>
+            <Select
+              selected={"date"}
+              width="max-content"
+              borderRadius={5}
+              size={"sm"}
+            >
+              <option value="updoots">Updoots</option>
+              <option value="date">Date</option>
+            </Select>
+          </Box>
+          <Stack spacing={8}>
+            {data!.posts.posts.map((p) =>
+              !p ? null : (
+                <Flex key={p.id} p={5} shadow="md" borderWidth="1px">
+                  <UpdootSection post={p} />
+                  <Box flex={1}>
+                    <NextLink href="/post/[id]" as={`/post/${p.id}`}>
+                      <Link>
+                        <Heading fontSize="xl">{p.title}</Heading>
+                      </Link>
+                    </NextLink>
+                    <Text>posted by {p.creator.username}</Text>
+                    {/* FIXME Fix ssr with dates as it was done with titles and text */}
+                    <Text>
+                      Created: <RefactoredDate time={p.createdAt} />
                     </Text>
-                    <Box ml="auto">
-                      <EditDeletePostButtons
-                        id={p.id}
-                        creatorId={p.creator.id}
-                      />
-                    </Box>
-                  </Flex>
-                </Box>
-              </Flex>
-            )
-          )}
-        </Stack>
+                    <Text>
+                      Updated: <RefactoredDate time={p.updatedAt} />
+                    </Text>
+                    <Flex align="center">
+                      <Text flex={1} mt={4}>
+                        {p.textSnippet}
+                      </Text>
+                      <Box ml="auto">
+                        <EditDeletePostButtons
+                          id={p.id}
+                          creatorId={p.creator.id}
+                        />
+                      </Box>
+                    </Flex>
+                  </Box>
+                </Flex>
+              )
+            )}
+          </Stack>
+        </Flex>
       )}
       {data && data.posts.hasMore ? (
         <Flex>
