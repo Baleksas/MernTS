@@ -1,6 +1,4 @@
-#RGTS
-
-<img width="842" alt="Screenshot 2023-02-08 at 09 44 17" src="https://user-images.githubusercontent.com/58878092/217493934-0009c788-e7d5-4dcf-86f4-15316bb971c4.png">
+# RGTS
 
 ### Description
 
@@ -11,6 +9,8 @@ Full stack application with functionality similar to Reddit. This project requir
 1. Secure authentication system - login/register backed up by argon2 encryption
 2. Ability to create posts and store them in PostgreSQL as well as upvotes, users and relationships between all of these entities, with metadata such as creation date
 3. Ability to sort posts by date or amount of updoots (upvotes)
+
+<img width="842" alt="Screenshot 2023-02-08 at 09 44 17" src="https://user-images.githubusercontent.com/58878092/217493934-0009c788-e7d5-4dcf-86f4-15316bb971c4.png">
 
 ### Technologies used
 
